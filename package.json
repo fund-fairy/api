@@ -1,0 +1,22 @@
+{
+  "name": "fundfairy-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "handler.js",
+  "dependencies": {
+    "@aws/dynamodb-data-mapper": "^0.7.3",
+    "@paypal/checkout-server-sdk": "^1.0.1",
+    "aws-sdk": "^2.510.0",
+    "pino": "^5.13.2",
+    "serverless-dynamodb-local": "^0.2.38"
+  },
+  "devDependencies": {
+    "pino-pretty": "^3.2.0",
+    "serverless-offline": "^5.10.1"
+  },
+  "scripts": {
+    "test": "npm test"
+  },
+  "author": "",
+  "license": "ISC"
+}

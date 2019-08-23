@@ -1,0 +1,112 @@
+service: fundfairy-api
+app: fundfairy-api
+org: fundfairy
+
+plugins:
+  - serverless-offline
+  - serverless-dynamodb-local
+
+custom:
+  nodeEnv:
+    dev: dev
+    prod: prod
+    local: test
+  awsAccount:
+    dev: 717656061171
+    prod: 717656061171
+    local: 1234
+  dynamodb:
+    stages:
+      - local
+    start:
+      port: 8000
+      inMemory: true
+      heapInitial: 200m
+      heapMax: 1g
+      migrate: true
+
+provider:
+  name: aws
+  runtime: nodejs10.x
+  stage: ${opt:stage, 'dev'}
+  region: us-east-1
+  memorySize: 256
+  profile: fundfairy
+  environment:
+    PAYPAL_CLIENT_ID: ${file(./config/config.${self:provider.stage}.json):PAYPAL_CLIENT_ID}
+    PAYPAL_CLIENT_SECRET: ${file(./config/config.${self:provider.stage}.json):PAYPAL_CLIENT_SECRET}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:DescribeTable
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:${self:provider.region}:${self:custom.awsAccount.${self:provider.stage}}:table/${self:resources.Resources.DynamoDBTxnTable.Properties.TableName}"
+
+functions:
+  paypalTxnComplete:
+    handler: handler.paypalTxnComplete
+    events:
+      - http:
+          path: paypal-transaction-complete
+          method: post
+  test:
+    handler: handler.test
+    events:
+      - http:
+          path: paypal-transaction-complete
+          method: get
+
+resources:
+ Resources:
+   DynamoDBTxnTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    Description: Table for storing all transactions from donations
+    Properties:
+      TableName: "PaymentTransactions"
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: txnId
+          AttributeType: S
+        - AttributeName: payerEmail
+          AttributeType: S
+      KeySchema:
+        - AttributeName: txnId
+          KeyType: HASH
+        - AttributeName: payerEmail
+          KeyType: RANGE
+
+package:
+  include:
+    - lib/**
+    - lib/paypalClient.js
+
+
+
+
+
+#  exclude:
+#    - exclude-me.js
+#    - exclude-me-dir/**
+
+
+
+#    Define function environment variables here
+#    environment:
+#      variable2: value2
+
+# you can add CloudFormation resource templates here
+#  Outputs:
+#     NewOutput:
+#       Description: "Description for the output"
+#       Value: "Some output value"
+
+# you can define service wide environment variables here
+# environment:
+#   PAYPAL_CLIENT_ID: value1
+#   PAYPAL_CLIENT_SECRET: value1
