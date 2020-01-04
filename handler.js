@@ -4,7 +4,9 @@ const aws = require('aws-sdk');
 const uuidV4 = require('uuid/v4');
 
 aws.config.update({ region: 'us-east-1' });
-// const ddb = new aws.DynamoDB();
+if (process.env.IS_OFFLINE) {
+  aws.config.update({ endpoint: 'http://localhost:4000' });
+}
 const ddb = new aws.DynamoDB.DocumentClient();
 
 module.exports.test = async (event, context) => {
