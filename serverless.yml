@@ -54,12 +54,14 @@ functions:
       - http:
           path: paypal-transaction-complete
           method: post
+          cors: true
   test:
     handler: handler.test
     events:
       - http:
           path: paypal-transaction-complete
           method: get
+          cors: true
 
 resources:
  Resources:

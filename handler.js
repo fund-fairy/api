@@ -12,6 +12,11 @@ const ddb = new aws.DynamoDB.DocumentClient();
 module.exports.test = async (event, context) => {
   return {
     statusCode: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Credentials': true,
+      'Content-Type': 'application/json'
+    },
     body: JSON.stringify({
       message: 'OK'
     })
@@ -40,9 +45,14 @@ module.exports.paypalTxnComplete = async (event, context) => {
   try {
     order = await payPalClient.client().execute(request);
   } catch (err) {
-    logger.error('pp client error', err, '\n', err.stack);
+    logger.error('paypal client error', err, '\n', err.stack);
     return {
       statusCode: 500,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({
         message: 'Could not execute client request'
       })
