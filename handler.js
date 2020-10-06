@@ -44,6 +44,18 @@ module.exports.paypalTxnComplete = async (event, context) => {
 
   try {
     order = await payPalClient.client().execute(request);
+    return {
+      statusCode: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        message: 'Executed client request',
+        order: order.result
+      })
+    }
   } catch (err) {
     logger.error('paypal client error', err, '\n', err.stack);
     return {
